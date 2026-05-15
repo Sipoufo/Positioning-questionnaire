@@ -1,0 +1,55 @@
+# docker-compose.yml
+# Three services:
+#   - web   : built React SPA served by Nginx on :80
+#   - api   : Express backend on :3001
+#   - caddy : reverse proxy with automatic HTTPS, exposed on :80 and :443
+#
+# Only Caddy is published to the host; web and api live on the internal network.
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: packages/frontend/Dockerfile
+    image: hc-web:latest
+    restart: unless-stopped
+    expose:
+      - "80"
+    networks: [hc]
+
+  api:
+    build:
+      context: .
+      dockerfile: packages/backend/Dockerfile
+    image: hc-api:latest
+    restart: unless-stopped
+    env_file:
+      - .env
+    expose:
+      - "3001"
+    networks: [hc]
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN}
+    volumes:
+      - ./infra/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - web
+      - api
+    networks: [hc]
+
+networks:
+  hc:
+    driver: bridge
+
+volumes:
+  caddy_data:
+  caddy_config:

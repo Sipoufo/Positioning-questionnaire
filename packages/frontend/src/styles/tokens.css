@@ -1,0 +1,33 @@
+/* tokens.css
+ * Design tokens for Happy Cash. Wired into Tailwind 4 via the @theme directive.
+ * See DESIGN_SYSTEM.md for the rationale behind every value.
+ */
+
+@import 'tailwindcss';
+
+@theme {
+  /* Green family */
+  --color-hc-green-founder: #1b5e20;
+  --color-hc-green-pillar: #2e7d32;
+  --color-hc-green-accent: #4caf50;
+  --color-hc-green-accent-2: #43a047;
+  --color-hc-green-soft: #81c784;
+  --color-hc-green-pale: #a5d6a7;
+
+  /* Backgrounds & neutrals */
+  --color-hc-bg-cream: #f1f8e9;
+  --color-hc-bg-mint: #e8f5e9;
+  --color-hc-white: #ffffff;
+  --color-hc-gray-light: #eceff1;
+  --color-hc-gray-mid: #b0bec5;
+  --color-hc-gray-slate: #546e7a;
+  --color-hc-gray-text: #37474f;
+
+  /* Functional */
+  --color-hc-red-alert: #c62828;
+  --color-hc-red-pale: #ffebee;
+
+  /* Typography */
+  --font-sans: 'Helvetica Neue', Helvetica, Arial, system-ui, sans-serif;
+  --font-mono: 'Courier New', Courier, monospace;
+}

@@ -1,0 +1,61 @@
+{
+  "brand": {
+    "name": "Happy Cash",
+    "tagline": "Positioning questionnaire"
+  },
+  "header": {
+    "lang_label": "Language",
+    "lang_fr": "FR",
+    "lang_en": "EN"
+  },
+  "landing": {
+    "subtitle": "May 2026 — version 1.0",
+    "preamble_title": "Before you start",
+    "preamble_body": "Thanks for attending the meeting of May 14th. This questionnaire formalizes your individual positioning so we can build Happy Cash on solid ground adapted to each person's reality.",
+    "rules_title": "A few important rules",
+    "rule_honest": "Be honest about what you can give today, not what you would ideally want to give. A lower level you can keep is better than a higher level betrayed in 3 months.",
+    "rule_no_judgment": "No answer is judged. Level 4 (Friend of the collective) is as respectable as Level 1 (Founder).",
+    "rule_confidential": "Your answers are confidential. They will only be shared with the other future Founders when the legal entity is incorporated.",
+    "rule_editable": "You can edit your answers until May 20th. After that, they are frozen for the 2nd meeting.",
+    "time_estimate": "Estimated time: 10 to 15 minutes",
+    "deadline_label": "Deadline",
+    "deadline_value": "Tuesday, May 20, 2026 at 11:59 PM",
+    "start": "Start the questionnaire",
+    "resume": "Resume where I left off"
+  },
+  "step": {
+    "section": "Section",
+    "of": "of",
+    "progress": "Progress",
+    "next": "Next",
+    "previous": "Previous",
+    "submit": "Send my answers",
+    "sending": "Sending…",
+    "required": "Required",
+    "optional": "Optional",
+    "precise_placeholder": "Specify here…",
+    "free_comment": "Free comment",
+    "max_chars": "{{count}} chars max",
+    "max_select": "Up to {{count}} choices"
+  },
+  "errors": {
+    "required": "This field is required.",
+    "invalid_email": "Invalid email address.",
+    "invalid_phone": "Invalid phone number.",
+    "invalid_option": "Invalid option.",
+    "too_long": "Text is too long.",
+    "too_many": "Too many options checked.",
+    "all_required": "All boxes must be checked.",
+    "submit_failed": "Submission failed. Check your connection and try again."
+  },
+  "success": {
+    "title": "Thanks for your contribution!",
+    "subtitle": "Your positioning has been recorded.",
+    "body": "You will receive a PDF copy of your answers at the email address you provided. The administrator also receives your submission. See you at the 2nd meeting on May 23rd.",
+    "restart": "Fill again"
+  },
+  "footer": {
+    "confidential": "Confidential document — Happy Cash",
+    "version": "v1.0 · May 2026"
+  }
+}

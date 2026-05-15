@@ -1,0 +1,61 @@
+{
+  "brand": {
+    "name": "Happy Cash",
+    "tagline": "Questionnaire de positionnement"
+  },
+  "header": {
+    "lang_label": "Langue",
+    "lang_fr": "FR",
+    "lang_en": "EN"
+  },
+  "landing": {
+    "subtitle": "Mai 2026 — version 1.0",
+    "preamble_title": "Avant de commencer",
+    "preamble_body": "Merci d'être passé par la réunion du 14 mai. Ce questionnaire sert à formaliser ton positionnement individuel pour qu'on puisse construire Happy Cash sur des bases solides et adaptées à la réalité de chacun.",
+    "rules_title": "Quelques règles importantes",
+    "rule_honest": "Sois honnête sur ce que tu peux donner aujourd'hui, pas sur ce que tu voudrais idéalement donner. Mieux vaut un niveau bas tenu qu'un niveau haut trahi dans 3 mois.",
+    "rule_no_judgment": "Aucune réponse n'est jugée. Le niveau 4 (Ami du collectif) est aussi respectable que le niveau 1 (Fondateur).",
+    "rule_confidential": "Tes réponses sont confidentielles. Elles ne seront partagées qu'avec les autres futurs Fondateurs au moment de la constitution juridique.",
+    "rule_editable": "Tu peux modifier tes réponses jusqu'au 20 mai. Au-delà, elles seront figées pour la 2e réunion.",
+    "time_estimate": "Temps estimé : 10 à 15 minutes",
+    "deadline_label": "Date limite",
+    "deadline_value": "Mardi 20 mai 2026 à 23h59",
+    "start": "Commencer le questionnaire",
+    "resume": "Reprendre où j'en étais"
+  },
+  "step": {
+    "section": "Section",
+    "of": "sur",
+    "progress": "Progression",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "submit": "Envoyer mes réponses",
+    "sending": "Envoi en cours…",
+    "required": "Obligatoire",
+    "optional": "Facultatif",
+    "precise_placeholder": "Précise ici…",
+    "free_comment": "Commentaire libre",
+    "max_chars": "{{count}} caractères max",
+    "max_select": "Maximum {{count}} choix"
+  },
+  "errors": {
+    "required": "Ce champ est obligatoire.",
+    "invalid_email": "Adresse email invalide.",
+    "invalid_phone": "Numéro de téléphone invalide.",
+    "invalid_option": "Option invalide.",
+    "too_long": "Texte trop long.",
+    "too_many": "Trop d'options cochées.",
+    "all_required": "Toutes les cases doivent être cochées.",
+    "submit_failed": "L'envoi a échoué. Vérifie ta connexion et réessaie."
+  },
+  "success": {
+    "title": "Merci pour ta contribution !",
+    "subtitle": "Ton positionnement a été enregistré.",
+    "body": "Tu vas recevoir une copie PDF de tes réponses à l'adresse email que tu as renseignée. L'administrateur reçoit également ta soumission. À très vite pour la 2e réunion du 23 mai.",
+    "restart": "Remplir à nouveau"
+  },
+  "footer": {
+    "confidential": "Document confidentiel — Happy Cash",
+    "version": "v1.0 · Mai 2026"
+  }
+}

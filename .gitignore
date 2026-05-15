@@ -1,0 +1,29 @@
+node_modules
+dist
+build
+.turbo
+.cache
+
+# env
+.env
+.env.local
+.env.*.local
+
+# logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# editor
+.idea
+.vscode
+.DS_Store
+
+# misc
+coverage
+*.tsbuildinfo
+
+# docker
+.docker
+caddy_data
+caddy_config

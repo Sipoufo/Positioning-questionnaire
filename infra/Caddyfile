@@ -1,0 +1,24 @@
+# Caddyfile
+# Single-domain reverse proxy with automatic HTTPS via Let's Encrypt.
+# Replace `{$DOMAIN}` with your real domain when configuring `.env`.
+#
+# Caddy automatically renews certificates and handles HTTP→HTTPS redirect.
+
+{$DOMAIN} {
+    encode zstd gzip
+
+    # Strict transport security: 1 year, include subdomains.
+    header Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    header X-Content-Type-Options "nosniff"
+    header Referrer-Policy "strict-origin-when-cross-origin"
+
+    # API requests go to the Express container.
+    handle /api/* {
+        reverse_proxy api:3001
+    }
+
+    # Everything else is served by the SPA container (Nginx).
+    handle {
+        reverse_proxy web:80
+    }
+}
