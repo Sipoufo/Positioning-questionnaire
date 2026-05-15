@@ -1,12 +1,13 @@
 # docker-compose.yml
-# Two services published on localhost only — the host's Nginx (already running
-# for printmarksgraphics.cloud) reverse-proxies /happycash/ to them.
+# Containers join the Nginx Proxy Manager (NPM) network so NPM can reverse-proxy
+# to them by container name. Nothing is published on host ports — all traffic
+# arrives via NPM (which terminates HTTPS for printmarksgraphics.cloud).
 #
-#   - web : built React SPA served by Nginx on host port 8080 (loopback only)
-#   - api : Express backend on host port 3001 (loopback only)
+#   - web : built React SPA served by Nginx on container port 80
+#   - api : Express backend on container port 3001
 #
-# Override the bound ports via .env (WEB_HOST_PORT / API_HOST_PORT) if these
-# values collide with something else on the VPS.
+# Set NPM_NETWORK in .env to the actual Nginx Proxy Manager network name
+# (find it with: docker network ls).
 
 services:
   web:
@@ -18,23 +19,28 @@ services:
         VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api}
         VITE_DEADLINE_ISO: ${VITE_DEADLINE_ISO:-}
     image: hc-web:latest
+    container_name: hc-web
     restart: unless-stopped
-    ports:
-      - "127.0.0.1:${WEB_HOST_PORT:-8080}:80"
-    networks: [hc]
+    expose:
+      - "80"
+    networks: [hc, npm]
 
   api:
     build:
       context: .
       dockerfile: packages/backend/Dockerfile
     image: hc-api:latest
+    container_name: hc-api
     restart: unless-stopped
     env_file:
       - .env
-    ports:
-      - "127.0.0.1:${API_HOST_PORT:-3001}:3001"
-    networks: [hc]
+    expose:
+      - "3001"
+    networks: [hc, npm]
 
 networks:
   hc:
     driver: bridge
+  npm:
+    external: true
+    name: ${NPM_NETWORK:-nginx-proxy-manager_default}
