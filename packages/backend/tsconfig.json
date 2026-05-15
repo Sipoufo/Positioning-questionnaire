@@ -11,10 +11,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "outDir": "dist",
-    "rootDir": "src",
-    "declaration": false,
-    "sourceMap": true,
+    "noEmit": true,
     "paths": {
       "@hc/shared": ["../shared/src/index.ts"],
       "@hc/shared/*": ["../shared/src/*"]
