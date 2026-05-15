@@ -13,9 +13,13 @@ if (!rootEl) {
   throw new Error('Root element #root is missing from index.html');
 }
 
+// `import.meta.env.BASE_URL` is derived from Vite's `base` config (e.g. "/happycash/").
+// React Router expects a basename without a trailing slash.
+const basename = import.meta.env.BASE_URL.replace(/\/$/, '') || undefined;
+
 ReactDOM.createRoot(rootEl).render(
   <React.StrictMode>
-    <BrowserRouter>
+    <BrowserRouter basename={basename}>
       <App />
     </BrowserRouter>
   </React.StrictMode>,

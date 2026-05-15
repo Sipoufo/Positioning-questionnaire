@@ -12,6 +12,13 @@ COPY packages/frontend/package.json ./packages/frontend/
 RUN pnpm install --frozen-lockfile || pnpm install
 COPY packages/shared ./packages/shared
 COPY packages/frontend ./packages/frontend
+# Vite reads VITE_* env vars at build time and inlines them in the bundle.
+ARG VITE_BASE_PATH=/
+ARG VITE_API_BASE_URL=/api
+ARG VITE_DEADLINE_ISO
+ENV VITE_BASE_PATH=$VITE_BASE_PATH \
+    VITE_API_BASE_URL=$VITE_API_BASE_URL \
+    VITE_DEADLINE_ISO=$VITE_DEADLINE_ISO
 RUN pnpm --filter @hc/frontend build
 
 FROM nginx:1.27-alpine

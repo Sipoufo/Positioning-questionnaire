@@ -1,169 +1,171 @@
-# DEPLOYMENT — Hostinger VPS (Ubuntu 24.04) + Docker Compose + Caddy
+# DEPLOYMENT — Hostinger VPS (Ubuntu) — sub-path under printmarksgraphics.cloud
 
-This guide walks you through deploying the Happy Cash Positioning Questionnaire on a fresh Hostinger VPS. Total time: ~30 minutes.
+This guide deploys the Happy Cash Positioning Questionnaire **on the same VPS that already serves `https://printmarksgraphics.cloud/`**. The app is mounted under the sub-path `/happycash/`, reusing the existing host Nginx + its HTTPS certificate. No new domain, no new ports exposed publicly.
 
----
-
-## 0. Prerequisites
-
-- A **Hostinger VPS** (KVM 1 or higher — 1 vCPU / 1 GB RAM is enough).
-- A **domain name** pointing to the VPS public IP (A record). Example: `positionnement.happycash.example`.
-- SMTP credentials for sending email (Gmail App Password, Brevo, OVH, Resend, etc.).
-- The admin email address that will receive every submission.
-- Local SSH key.
+Final URL: **`https://printmarksgraphics.cloud/happycash/`**
 
 ---
 
-## 1. Create the VPS
+## 0. Architecture in one diagram
 
-1. In the Hostinger panel: **VPS → Buy VPS**, pick **Ubuntu 24.04 LTS**.
-2. Add your **SSH public key** during provisioning (Hostinger lets you paste it).
-3. Wait for the VPS to be ready; note its public IPv4.
-
-## 2. Point the domain to the VPS
-
-In your DNS provider (Hostinger or another), create an **A record**:
-
-| Type | Name | Value | TTL |
-|---|---|---|---|
-| A | `positionnement` (or `@`) | `<VPS public IPv4>` | 3600 |
-
-Wait until `dig +short positionnement.happycash.example` returns the VPS IP (1–15 minutes).
-
-## 3. Connect to the VPS
-
-```bash
-ssh root@<VPS_IP>
+```
+Internet ──HTTPS:443──► host Nginx (printmarksgraphics.cloud)
+                          │
+                          ├─ /              → other project (untouched)
+                          ├─ /happycash/    → 127.0.0.1:8080  (Docker: hc-web)
+                          └─ /happycash/api/→ 127.0.0.1:3001  (Docker: hc-api)
 ```
 
-Create a non-root user (recommended):
+The two new containers bind to **loopback only** (`127.0.0.1`), so they are unreachable from Internet directly — all traffic goes through the host Nginx.
+
+## 1. Prerequisites on the VPS
+
+- Docker Engine + Compose plugin already installed (you have them since the other project runs).
+- Existing Nginx serving `printmarksgraphics.cloud` with a valid Let's Encrypt cert.
+- Ports `8080` and `3001` available on `127.0.0.1` (see Step 7 if they collide).
+- SMTP credentials + admin email.
+- SSH access to the VPS.
+
+## 2. Pull the code onto the VPS
 
 ```bash
-adduser hc
-usermod -aG sudo hc
-mkdir -p /home/hc/.ssh && cp ~/.ssh/authorized_keys /home/hc/.ssh/
-chown -R hc:hc /home/hc/.ssh && chmod 700 /home/hc/.ssh && chmod 600 /home/hc/.ssh/authorized_keys
-```
-
-Re-connect as `hc`:
-```bash
-ssh hc@<VPS_IP>
-```
-
-## 4. Basic hardening + firewall
-
-```bash
-sudo apt update && sudo apt upgrade -y
-sudo ufw allow OpenSSH
-sudo ufw allow 80/tcp
-sudo ufw allow 443/tcp
-sudo ufw --force enable
-sudo apt install -y fail2ban
-sudo systemctl enable --now fail2ban
-```
-
-## 5. Install Docker Engine + Compose plugin
-
-```bash
-sudo apt install -y ca-certificates curl gnupg
-sudo install -m 0755 -d /etc/apt/keyrings
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-sudo chmod a+r /etc/apt/keyrings/docker.gpg
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" \
-  | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-sudo apt update
-sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-sudo usermod -aG docker $USER
-```
-
-Log out / log back in so the docker group is picked up. Verify:
-
-```bash
-docker --version
-docker compose version
-```
-
-## 6. Pull the project on the VPS
-
-If your code is on GitHub:
-
-```bash
+ssh hc@<VPS_IP>     # or root@<VPS_IP>
 cd ~
-git clone <git@github.com:your-org/positioning-questionnaire.git> positioning-questionnaire
+git clone <repo-url> positioning-questionnaire
 cd positioning-questionnaire
 ```
 
-Or upload via `scp`:
+(Or `rsync` from your laptop if there is no Git remote yet.)
 
-```bash
-# from your laptop
-rsync -avz --exclude node_modules --exclude .git ./ hc@<VPS_IP>:~/positioning-questionnaire/
-```
-
-## 7. Configure environment variables
+## 3. Configure `.env`
 
 ```bash
 cp .env.example .env
 nano .env
 ```
 
-Fill **at least**:
+Make sure these values are correct for the sub-path setup:
 
-| Key | Example | Notes |
+| Key | Value | Notes |
 |---|---|---|
-| `DOMAIN` | `positionnement.happycash.example` | Used by Caddy for HTTPS |
-| `CORS_ORIGINS` | `https://positionnement.happycash.example` | The same domain over HTTPS |
-| `SMTP_HOST` | `smtp.gmail.com` | Your SMTP server |
-| `SMTP_PORT` | `465` | 465 SSL, 587 STARTTLS |
-| `SMTP_SECURE` | `true` | `true` for 465, `false` for 587 |
-| `SMTP_USER` | `noreply@happycash.example` | SMTP username |
-| `SMTP_PASSWORD` | `xxxx xxxx xxxx xxxx` | App password (Gmail) or SMTP secret |
-| `MAIL_FROM_NAME` | `Happy Cash` | Display name on outgoing emails |
-| `MAIL_FROM_ADDRESS` | `noreply@happycash.example` | Must match the SMTP account in most cases |
-| `ADMIN_EMAIL` | `admin@happycash.example` | Recipient of every submission |
+| `VITE_BASE_PATH` | `/happycash/` | Sub-path the SPA is served from |
+| `VITE_API_BASE_URL` | `/happycash/api` | The browser-visible API URL |
+| `CORS_ORIGINS` | `https://printmarksgraphics.cloud` | Origin that calls the API |
+| `WEB_HOST_PORT` | `8080` | Change only if 8080 is taken on the VPS |
+| `API_HOST_PORT` | `3001` | Change only if 3001 is taken on the VPS |
+| `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASSWORD` | … | Your SMTP provider |
+| `SMTP_SECURE` | `true` for port 465, `false` for 587 | |
+| `MAIL_FROM_NAME` / `MAIL_FROM_ADDRESS` | `Happy Cash` / `noreply@…` | |
+| `ADMIN_EMAIL` | `admin@…` | Where every submission lands |
 
-> ⚠️ Never commit `.env`. The `.gitignore` already excludes it.
+### SMTP gotchas (recap)
 
-### SMTP gotchas
+- **Gmail**: enable 2FA, then generate an App Password at <https://myaccount.google.com/apppasswords>. Use it as `SMTP_PASSWORD`. Host `smtp.gmail.com`, port `465`, `SMTP_SECURE=true`.
+- **Brevo**: free tier 300 emails/day, host `smtp-relay.brevo.com`, port `587`, `SMTP_SECURE=false`.
+- **Resend SMTP**: host `smtp.resend.com`, port `465`, user `resend`, password = your API key.
+- **OVH**: `ssl0.ovh.net:465`, SMTP user is the full mailbox address.
 
-- **Gmail**: enable 2FA on the account, then create an **App password** at <https://myaccount.google.com/apppasswords>. Use that as `SMTP_PASSWORD`. Port `465`, secure `true`.
-- **OVH**: SSL on `ssl0.ovh.net:465`, the SMTP user is the full mailbox address.
-- **Brevo (ex-Sendinblue)**: free tier of 300 emails/day, host `smtp-relay.brevo.com`, port `587`, `SMTP_SECURE=false`.
-- **Resend** SMTP: host `smtp.resend.com`, port `465`, secure `true`, user `resend`, password is your API key.
-
-## 8. First boot
+## 4. Build & start the containers
 
 ```bash
-docker compose pull
 docker compose up -d --build
 docker compose ps
 ```
 
-Expected: three healthy services (`web`, `api`, `caddy`).
-
-Caddy will request a Let's Encrypt certificate automatically the first time it answers a request on the configured `DOMAIN`. Watch the logs:
+Expected: two healthy services (`web` on `127.0.0.1:8080`, `api` on `127.0.0.1:3001`). Quick smoke test from the VPS itself:
 
 ```bash
-docker compose logs -f caddy
+curl -I http://127.0.0.1:8080/             # should return 200 (the SPA index)
+curl -s http://127.0.0.1:3001/api/health   # should return {"ok":true}
 ```
 
-You should see `certificate obtained successfully`.
+If either fails, check logs:
+```bash
+docker compose logs web
+docker compose logs api
+```
 
-Visit `https://<DOMAIN>` — the form should load.
+## 5. Add the Nginx sub-path on the host
 
-## 9. Smoke test
+> **Do not replace** the existing config. Just paste three new `location` blocks **inside the `server { … }` that already handles `printmarksgraphics.cloud:443`**.
 
-1. Open `https://<DOMAIN>` in a browser → landing page.
-2. Walk through 2–3 steps, switch language FR ↔ EN, refresh the page (the draft should persist).
-3. Fill the form to the end with a **real email** in Q1.3.
-4. Submit. The admin mailbox AND the email used in Q1.3 should each receive a PDF.
+Find the right file:
+```bash
+sudo nginx -T | grep -E 'server_name|listen' | less
+# or the typical paths:
+ls /etc/nginx/sites-enabled/
+ls /etc/nginx/conf.d/
+```
 
-If the email never arrives:
-- `docker compose logs api` — look for SMTP errors (auth, port, TLS).
-- Check the SMTP provider's outbound queue.
-- If Gmail: confirm you used an App Password, not the account password.
+Open the file that contains `server_name printmarksgraphics.cloud;` and the `listen 443 ssl;` directive. Inside its `server { ... }`, paste the content of [`infra/nginx-host.example.conf`](./infra/nginx-host.example.conf):
 
-## 10. Update & redeploy
+```nginx
+# Happy Cash sub-path
+location /happycash/api/ {
+    proxy_pass http://127.0.0.1:3001/api/;
+    proxy_http_version 1.1;
+    proxy_set_header Host              $host;
+    proxy_set_header X-Real-IP         $remote_addr;
+    proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    client_max_body_size 256k;
+    proxy_read_timeout 30s;
+}
+
+location /happycash/ {
+    proxy_pass http://127.0.0.1:8080/;
+    proxy_http_version 1.1;
+    proxy_set_header Host              $host;
+    proxy_set_header X-Real-IP         $remote_addr;
+    proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+}
+
+location = /happycash {
+    return 301 /happycash/;
+}
+```
+
+> ⚠️ **Order matters.** The `/happycash/api/` block must come **before** the `/happycash/` block, otherwise Nginx will route API calls to the SPA. Nginx matches prefix locations by longest match, so this is normally fine, but keeping the order makes the intent unambiguous and avoids surprises if the config is reorganized later.
+
+Validate then reload:
+
+```bash
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+If `nginx -t` errors out, fix the syntax before reloading (Nginx will keep running on the previous good config until you reload).
+
+## 6. Smoke test from a browser
+
+1. Visit `https://printmarksgraphics.cloud/happycash/` → landing page Happy Cash.
+2. Open DevTools → Network → confirm all `/happycash/assets/*` requests return 200.
+3. Walk through 2–3 steps, switch FR ↔ EN, refresh — the draft should persist.
+4. Fill the form with a **real email** in Q1.3 and submit.
+5. Both the admin mailbox and the email in Q1.3 should receive a PDF.
+
+## 7. Port collisions
+
+If `8080` or `3001` is already used by the other project, change them in `.env`:
+
+```bash
+WEB_HOST_PORT=8089
+API_HOST_PORT=3089
+```
+
+Then update the **two** `proxy_pass` lines in the Nginx host config to match, and:
+```bash
+docker compose up -d
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+To check what is already listening:
+```bash
+sudo ss -tlnp | grep -E ':(8080|3001|8089|3089)\b'
+```
+
+## 8. Update & redeploy
 
 ```bash
 cd ~/positioning-questionnaire
@@ -172,37 +174,37 @@ docker compose up -d --build
 docker image prune -f
 ```
 
-Zero downtime is not guaranteed for a 1-container-per-role layout, but the rebuild + restart cycle takes ~30s.
+Rebuild time ~1–2 min on a small VPS. The host Nginx config does **not** need to be touched on updates — it just keeps reverse-proxying to the same loopback ports.
 
-## 11. Backups
+## 9. Backups
 
-There is **no database** to back up — submissions live exclusively in the recipient mailboxes.
+There is no database. Worth keeping safe off-host:
 
-Worth backing up regardless:
-- `~/positioning-questionnaire/.env` (off-host secret store)
-- The `caddy_data` Docker volume (holds the Let's Encrypt certificates — losing it just triggers a re-issue on next boot, but rate limits exist).
+- `~/positioning-questionnaire/.env`
+- Your existing Nginx config (you modified it — back it up before/after).
 
 ```bash
-# Snapshot caddy_data
-docker run --rm -v positioning-questionnaire_caddy_data:/data -v "$PWD":/backup alpine \
-  tar czf /backup/caddy_data.tar.gz -C /data .
+# Before editing the Nginx config, snapshot it:
+sudo cp /etc/nginx/sites-enabled/printmarksgraphics.cloud /root/nginx-printmarks.bak.$(date +%F)
 ```
 
-## 12. Troubleshooting
+## 10. Troubleshooting
 
 | Symptom | Likely cause | Fix |
 |---|---|---|
-| `502 Bad Gateway` on the API | `api` container not yet healthy | `docker compose logs api` |
-| Caddy logs `no certificate found` | DNS not propagated | Re-check the A record, wait, then `docker compose restart caddy` |
-| Form submits but no email | SMTP rejected the credentials | Check `api` logs; rotate App Password |
-| `CORS error` in browser | `CORS_ORIGINS` does not include your real frontend origin | Add it to `.env`, `docker compose up -d` |
-| Static assets 404 after deploy | Stale CDN/browser cache | The Nginx config sets `no-store` on `index.html` — usually a Cloudflare proxy in front; purge it |
+| `502 Bad Gateway` on `/happycash/` | Container down or wrong port | `docker compose ps` + `docker compose logs web` |
+| Blank page, console: `Failed to load module script` from `/assets/...` | `VITE_BASE_PATH` not set at build time | Rebuild: `docker compose up -d --build` after fixing `.env` |
+| API returns 404 on `/happycash/api/submit` | Nginx prefix-strip not applied | Make sure `proxy_pass` ends with `/api/`, not `/api` |
+| `CORS error` in browser | `CORS_ORIGINS` missing `https://printmarksgraphics.cloud` | Edit `.env`, `docker compose up -d` |
+| Email never arrives | SMTP creds rejected | `docker compose logs api` — look for `EAUTH` / `ETIMEDOUT` |
+| `nginx: [emerg] duplicate location` | You pasted into the wrong server block | Verify `server_name printmarksgraphics.cloud;` is the right one |
 
-## 13. Decommission
+## 11. Decommission
 
 ```bash
+cd ~/positioning-questionnaire
 docker compose down -v
-sudo rm -rf ~/positioning-questionnaire
+rm -rf ~/positioning-questionnaire
+# Then remove the three location blocks from the host Nginx config and reload.
+sudo nginx -t && sudo systemctl reload nginx
 ```
-
-This deletes the containers, volumes (including the issued certificates) and source.

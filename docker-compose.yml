@@ -1,20 +1,26 @@
 # docker-compose.yml
-# Three services:
-#   - web   : built React SPA served by Nginx on :80
-#   - api   : Express backend on :3001
-#   - caddy : reverse proxy with automatic HTTPS, exposed on :80 and :443
+# Two services published on localhost only — the host's Nginx (already running
+# for printmarksgraphics.cloud) reverse-proxies /happycash/ to them.
 #
-# Only Caddy is published to the host; web and api live on the internal network.
+#   - web : built React SPA served by Nginx on host port 8080 (loopback only)
+#   - api : Express backend on host port 3001 (loopback only)
+#
+# Override the bound ports via .env (WEB_HOST_PORT / API_HOST_PORT) if these
+# values collide with something else on the VPS.
 
 services:
   web:
     build:
       context: .
       dockerfile: packages/frontend/Dockerfile
+      args:
+        VITE_BASE_PATH: ${VITE_BASE_PATH:-/}
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api}
+        VITE_DEADLINE_ISO: ${VITE_DEADLINE_ISO:-}
     image: hc-web:latest
     restart: unless-stopped
-    expose:
-      - "80"
+    ports:
+      - "127.0.0.1:${WEB_HOST_PORT:-8080}:80"
     networks: [hc]
 
   api:
@@ -25,31 +31,10 @@ services:
     restart: unless-stopped
     env_file:
       - .env
-    expose:
-      - "3001"
-    networks: [hc]
-
-  caddy:
-    image: caddy:2-alpine
-    restart: unless-stopped
     ports:
-      - "80:80"
-      - "443:443"
-    environment:
-      DOMAIN: ${DOMAIN}
-    volumes:
-      - ./infra/Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
-    depends_on:
-      - web
-      - api
+      - "127.0.0.1:${API_HOST_PORT:-3001}:3001"
     networks: [hc]
 
 networks:
   hc:
     driver: bridge
-
-volumes:
-  caddy_data:
-  caddy_config:

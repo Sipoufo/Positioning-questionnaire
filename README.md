@@ -15,7 +15,7 @@ Step-by-step web questionnaire for the Happy Cash collective. On submission, gen
 - **Frontend** — React 19, Vite 6, TypeScript strict, Tailwind 4, react-hook-form + Zod, i18next (FR / EN), framer-motion
 - **Backend** — Node 20, Express 5, TypeScript strict, Zod, `@react-pdf/renderer`, Nodemailer
 - **Shared** — typed questionnaire schema (`@hc/shared`) consumed by both
-- **Infra** — pnpm workspaces, Docker Compose, Caddy (auto HTTPS)
+- **Infra** — pnpm workspaces, Docker Compose, sub-path under existing host Nginx (HTTPS handled by the host)
 
 ## Local development
 
@@ -33,7 +33,7 @@ Open <http://localhost:5173>.
 docker compose up --build
 ```
 
-Behind Caddy on `DOMAIN`. See [`DEPLOYMENT.md`](./DEPLOYMENT.md) for the full VPS guide.
+Containers bind to `127.0.0.1:8080` (SPA) and `127.0.0.1:3001` (API) — the host Nginx reverse-proxies under `/happycash/`. See [`DEPLOYMENT.md`](./DEPLOYMENT.md) for the full VPS guide.
 
 ## Project layout
 
