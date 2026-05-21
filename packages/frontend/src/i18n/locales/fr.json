@@ -6,7 +6,10 @@
   "header": {
     "lang_label": "Langue",
     "lang_fr": "FR",
-    "lang_en": "EN"
+    "lang_en": "EN",
+    "nav_label": "Sections",
+    "nav_questionnaire": "Questionnaire",
+    "nav_vote": "Vote"
   },
   "landing": {
     "subtitle": "Mai 2026 — version 1.0",
@@ -46,7 +49,217 @@
     "too_long": "Texte trop long.",
     "too_many": "Trop d'options cochées.",
     "all_required": "Toutes les cases doivent être cochées.",
-    "submit_failed": "L'envoi a échoué. Vérifie ta connexion et réessaie."
+    "submit_failed": "L'envoi a échoué. Vérifie ta connexion et réessaie.",
+    "too_many_requests": "Trop de tentatives. Réessaie dans quelques minutes.",
+    "network_error": "Problème de connexion. Vérifie ton réseau."
+  },
+  "vote": {
+    "nav": {
+      "back_to_list": "Retour aux votes",
+      "logout": "Se déconnecter"
+    },
+    "role": {
+      "admin": "Administrateur"
+    },
+    "status": {
+      "draft": "Brouillon",
+      "open": "Ouvert",
+      "closed": "Clôturé",
+      "cancelled": "Annulé"
+    },
+    "login": {
+      "title": "Espace de vote Happy Cash",
+      "subtitle": "Entre l'adresse email associée à ton compte. Tu recevras un lien de connexion sécurisé valable 24h.",
+      "email_label": "Adresse email",
+      "submit": "Recevoir mon lien",
+      "sending": "Envoi en cours…",
+      "sent_title": "Vérifie ta boîte email",
+      "sent_body": "Si cette adresse est enregistrée, un lien de connexion vient d'être envoyé. Pense à vérifier ton dossier spam."
+    },
+    "verify": {
+      "in_progress": "Connexion en cours…",
+      "error_title": "Connexion impossible",
+      "errors": {
+        "invalid_token": "Ce lien est invalide ou mal formé.",
+        "token_expired": "Ce lien a expiré. Demande-en un nouveau.",
+        "token_used": "Ce lien a déjà été utilisé. Demande-en un nouveau.",
+        "submit_failed": "Une erreur est survenue. Réessaie."
+      },
+      "back_to_login": "Demander un nouveau lien"
+    },
+    "list": {
+      "title": "Mes votes",
+      "loading": "Chargement…",
+      "load_error": "Impossible de charger les votes. Réessaie.",
+      "empty": "Aucun vote en cours pour ton profil. Tu seras notifié·e par email à l'ouverture du prochain scrutin.",
+      "voted": "Voté",
+      "anonymous": "Anonyme",
+      "no_deadline": "Sans date de fermeture",
+      "closes_at": "Clôture le {{value}}",
+      "was_closed": "Vote clôturé",
+      "go_admin": "Administration"
+    },
+    "detail": {
+      "loading": "Chargement du vote…",
+      "round": "Tour {{number}}",
+      "closes_at": "Clôture le {{value}}",
+      "anonymity_disclosure": "Votre vote est techniquement dissocié de votre identité dès la soumission. Pendant la période de vote, une compromission du serveur pourrait théoriquement révéler votre choix. Cette garantie devient absolue après la fermeture du scrutin.",
+      "already_voted_title": "Vote enregistré",
+      "already_voted_body": "Ta participation a été comptabilisée. Tu recevras les résultats par email à la fermeture du scrutin.",
+      "closed_no_vote": "Ce vote est clôturé. Tu n'y as pas participé.",
+      "cast_title": "Ton bulletin",
+      "cast_help_single": "Choisis une seule option.",
+      "cast_help_multiple": "Tu peux sélectionner jusqu'à {{max}} options.",
+      "errors": {
+        "not_eligible": "Tu n'es pas éligible à ce vote.",
+        "not_found": "Vote introuvable.",
+        "generic": "Impossible de charger ce vote."
+      }
+    },
+    "ballot": {
+      "options_legend": "Options du bulletin",
+      "counter": "Sélection : {{count}} / {{max}} options",
+      "blank": "Voter blanc",
+      "comment_label": "Commentaire (facultatif)",
+      "comment_placeholder": "Tu peux expliquer ton choix en quelques mots…",
+      "submit": "Valider mon vote",
+      "submitting": "Enregistrement…"
+    },
+    "success": {
+      "title": "Vote enregistré",
+      "body": "Merci pour ta participation. Tu recevras les résultats par email à la fermeture du scrutin.",
+      "back_to_vote": "Voir le détail du vote",
+      "back_to_list": "Retour à mes votes",
+      "receipt_title": "Ton code de vérification",
+      "receipt_help": "Note ce code. À la clôture du scrutin, tu pourras le retrouver dans le PDF des résultats pour vérifier que ton bulletin a bien été pris en compte.",
+      "copy": "Copier",
+      "copied": "Copié !"
+    },
+    "results": {
+      "title": "Résultats",
+      "empty": "Aucun résultat à afficher pour ce vote.",
+      "round_label": "Tour {{number}}",
+      "closed_on": "Clôturé le {{value}}",
+      "still_open": "Tour en cours",
+      "no_data_yet": "Pas de dépouillement disponible.",
+      "summary": "{{voted}} bulletins sur {{total}} éligibles ({{pct}}% de participation).",
+      "verdict_ok": "Majorité atteinte — {{winners}}",
+      "verdict_ko": "Pas de majorité.",
+      "blank_count": "{{count}} bulletin(s) blanc(s)",
+      "errors": {
+        "results_hidden": "Les résultats de ce vote sont réservés à l'administrateur.",
+        "results_pending_close": "Les résultats seront disponibles après la fermeture du scrutin.",
+        "must_vote_first": "Tu dois voter avant d'accéder aux résultats.",
+        "not_eligible": "Tu n'es pas éligible à ce vote.",
+        "generic": "Impossible de charger les résultats."
+      }
+    },
+    "admin": {
+      "dashboard": {
+        "title": "Administration",
+        "voters_link": "Votants",
+        "audit_link": "Journal d'audit",
+        "create_vote": "Nouveau vote",
+        "recent_votes": "Votes récents",
+        "empty": "Aucun vote pour l'instant.",
+        "col_title": "Titre",
+        "col_status": "Statut",
+        "col_close_at": "Fermeture",
+        "open_link": "Ouvrir"
+      },
+      "audit": {
+        "title": "Journal d'audit",
+        "subtitle": "Trace conservée 10 ans des actions sur le système de vote (jamais le contenu des bulletins).",
+        "empty": "Aucune entrée pour l'instant.",
+        "col_when": "Quand",
+        "col_action": "Action",
+        "col_entity": "Cible",
+        "col_actor": "Acteur",
+        "system_actor": "système (cron)",
+        "load_older": "Charger plus ancien"
+      },
+      "voters": {
+        "title": "Gestion des votants",
+        "add_title": "Ajouter un votant",
+        "add_submit": "Ajouter",
+        "list_title": "Liste des votants",
+        "col_email": "Email",
+        "col_name": "Nom complet",
+        "col_level": "Niveau",
+        "col_role": "Rôle",
+        "col_active": "Actif",
+        "role_member": "Membre",
+        "role_admin": "Admin",
+        "level_1": "Niveau 1 — Fondateur",
+        "level_2": "Niveau 2 — Membre actif",
+        "level_3": "Niveau 3 — Soutien",
+        "active_yes": "Actif",
+        "active_no": "Inactif",
+        "deactivate_aria": "Désactiver ce votant",
+        "confirm_deactivate": "Désactiver ce votant ? Il ne pourra plus se connecter ni voter."
+      },
+      "create": {
+        "title": "Créer un nouveau vote",
+        "field_title": "Titre du vote",
+        "field_description": "Description / contexte (facultatif)",
+        "field_mode": "Mode",
+        "mode_anonymous": "Anonyme (recommandé pour élections)",
+        "mode_open": "Ouvert (chaque vote est rattaché à son auteur)",
+        "field_scrutin": "Type de scrutin",
+        "scrutin_single": "Vote unique (1 choix)",
+        "scrutin_multiple": "Vote multiple (N choix)",
+        "field_max_choices": "Nombre maximum de choix",
+        "allow_blank": "Autoriser le vote blanc",
+        "field_eligibility": "Niveaux éligibles",
+        "field_quorum": "Quorum requis (%)",
+        "field_majority_type": "Type de majorité",
+        "maj_simple": "Simple (plus haut score)",
+        "maj_absolute": "Absolue (> 50%)",
+        "maj_qualified_2_3": "Qualifiée 2/3 (> 66,66%)",
+        "maj_qualified_3_4": "Qualifiée 3/4 (> 75%)",
+        "maj_unanimous": "Unanimité (100%)",
+        "field_majority_base": "Base de calcul de la majorité",
+        "base_expressed": "Suffrages exprimés (hors blanc)",
+        "base_expressed_with_blank": "Suffrages exprimés (blancs inclus)",
+        "base_eligible": "Total des éligibles",
+        "field_open_at": "Ouverture programmée",
+        "open_at_helper": "Si vide et 'ouvrir immédiatement' coché : ouverture au clic.",
+        "field_close_at": "Date et heure de fermeture",
+        "close_at_helper": "Si vide : fermeture manuelle par l'admin.",
+        "scheduled_hint": "Ce vote sera ouvert automatiquement à la date indiquée par le planificateur (toutes les minutes).",
+        "field_visibility": "Visibilité des résultats",
+        "vis_immediate": "Immédiate après mon vote",
+        "vis_on_close": "À la fermeture du scrutin",
+        "vis_admin_only": "Admin uniquement",
+        "multi_round": "Multi-tours (top N au tour 2 si pas de majorité)",
+        "top_n": "Top N options",
+        "options_title": "Options de réponse (FR + EN)",
+        "option_fr": "Libellé FR",
+        "option_en": "Libellé EN",
+        "option_add": "Ajouter une option",
+        "option_remove": "Supprimer cette option",
+        "open_immediately": "Ouvrir le vote dès la création",
+        "submit": "Créer le vote",
+        "submitting": "Création…"
+      },
+      "detail": {
+        "open_vote": "Ouvrir le vote",
+        "close_vote": "Clôturer le vote",
+        "refresh": "Rafraîchir",
+        "see_results": "Voir les résultats",
+        "participation_title": "Participation",
+        "participation_count": "{{voted}} / {{total}} votants ({{pct}}%)",
+        "col_status": "Statut",
+        "has_voted": "A voté",
+        "not_voted": "N'a pas voté",
+        "remind": "Relancer",
+        "remind_aria": "Renvoyer un lien de connexion",
+        "opened_ok": "Vote ouvert. Les éligibles peuvent voter.",
+        "closed_ok": "Vote clôturé. Le PDF des résultats a été envoyé à l'administrateur.",
+        "remind_ok": "Lien de connexion renvoyé.",
+        "confirm_close": "Clôturer ce vote maintenant ? Cette action est irréversible."
+      }
+    }
   },
   "success": {
     "title": "Merci pour ta contribution !",

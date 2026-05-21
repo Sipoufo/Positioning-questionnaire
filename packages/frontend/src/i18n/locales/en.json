@@ -6,7 +6,10 @@
   "header": {
     "lang_label": "Language",
     "lang_fr": "FR",
-    "lang_en": "EN"
+    "lang_en": "EN",
+    "nav_label": "Sections",
+    "nav_questionnaire": "Questionnaire",
+    "nav_vote": "Vote"
   },
   "landing": {
     "subtitle": "May 2026 — version 1.0",
@@ -46,7 +49,217 @@
     "too_long": "Text is too long.",
     "too_many": "Too many options checked.",
     "all_required": "All boxes must be checked.",
-    "submit_failed": "Submission failed. Check your connection and try again."
+    "submit_failed": "Submission failed. Check your connection and try again.",
+    "too_many_requests": "Too many attempts. Try again in a few minutes.",
+    "network_error": "Connection problem. Check your network."
+  },
+  "vote": {
+    "nav": {
+      "back_to_list": "Back to votes",
+      "logout": "Sign out"
+    },
+    "role": {
+      "admin": "Administrator"
+    },
+    "status": {
+      "draft": "Draft",
+      "open": "Open",
+      "closed": "Closed",
+      "cancelled": "Cancelled"
+    },
+    "login": {
+      "title": "Happy Cash vote area",
+      "subtitle": "Enter the email tied to your account. You will get a secure login link valid for 24h.",
+      "email_label": "Email address",
+      "submit": "Send my link",
+      "sending": "Sending…",
+      "sent_title": "Check your inbox",
+      "sent_body": "If this address is registered, a login link has just been sent. Don't forget to check your spam folder."
+    },
+    "verify": {
+      "in_progress": "Signing you in…",
+      "error_title": "Sign-in failed",
+      "errors": {
+        "invalid_token": "This link is invalid or malformed.",
+        "token_expired": "This link has expired. Request a new one.",
+        "token_used": "This link has already been used. Request a new one.",
+        "submit_failed": "Something went wrong. Try again."
+      },
+      "back_to_login": "Request a new link"
+    },
+    "list": {
+      "title": "My votes",
+      "loading": "Loading…",
+      "load_error": "Could not load votes. Try again.",
+      "empty": "No active vote for your profile. You will be notified by email when the next one opens.",
+      "voted": "Voted",
+      "anonymous": "Anonymous",
+      "no_deadline": "No deadline",
+      "closes_at": "Closes on {{value}}",
+      "was_closed": "Vote closed",
+      "go_admin": "Administration"
+    },
+    "detail": {
+      "loading": "Loading vote…",
+      "round": "Round {{number}}",
+      "closes_at": "Closes on {{value}}",
+      "anonymity_disclosure": "Your vote is technically dissociated from your identity at submission. During the voting period, a server compromise could theoretically reveal your choice. This guarantee becomes absolute after the vote closes.",
+      "already_voted_title": "Vote recorded",
+      "already_voted_body": "Your participation has been counted. You will receive the results by email when the vote closes.",
+      "closed_no_vote": "This vote is closed. You did not participate.",
+      "cast_title": "Your ballot",
+      "cast_help_single": "Pick a single option.",
+      "cast_help_multiple": "You can select up to {{max}} options.",
+      "errors": {
+        "not_eligible": "You are not eligible for this vote.",
+        "not_found": "Vote not found.",
+        "generic": "Could not load this vote."
+      }
+    },
+    "ballot": {
+      "options_legend": "Ballot options",
+      "counter": "Selected: {{count}} / {{max}} options",
+      "blank": "Cast a blank ballot",
+      "comment_label": "Comment (optional)",
+      "comment_placeholder": "You can briefly explain your choice…",
+      "submit": "Confirm my vote",
+      "submitting": "Saving…"
+    },
+    "success": {
+      "title": "Vote recorded",
+      "body": "Thanks for taking part. You will receive the results by email when the vote closes.",
+      "back_to_vote": "View vote details",
+      "back_to_list": "Back to my votes",
+      "receipt_title": "Your verification code",
+      "receipt_help": "Note this code. When the vote closes, find it in the published results PDF to confirm your ballot was counted.",
+      "copy": "Copy",
+      "copied": "Copied!"
+    },
+    "results": {
+      "title": "Results",
+      "empty": "No results to display for this vote.",
+      "round_label": "Round {{number}}",
+      "closed_on": "Closed on {{value}}",
+      "still_open": "Round in progress",
+      "no_data_yet": "No tally available yet.",
+      "summary": "{{voted}} ballots of {{total}} eligible ({{pct}}% turnout).",
+      "verdict_ok": "Majority reached — {{winners}}",
+      "verdict_ko": "No majority.",
+      "blank_count": "{{count}} blank ballot(s)",
+      "errors": {
+        "results_hidden": "The results of this vote are reserved to the administrator.",
+        "results_pending_close": "Results will be visible once the vote closes.",
+        "must_vote_first": "You must cast your ballot before viewing the results.",
+        "not_eligible": "You are not eligible for this vote.",
+        "generic": "Could not load the results."
+      }
+    },
+    "admin": {
+      "dashboard": {
+        "title": "Administration",
+        "voters_link": "Voters",
+        "audit_link": "Audit log",
+        "create_vote": "New vote",
+        "recent_votes": "Recent votes",
+        "empty": "No vote yet.",
+        "col_title": "Title",
+        "col_status": "Status",
+        "col_close_at": "Closes at",
+        "open_link": "Open"
+      },
+      "audit": {
+        "title": "Audit log",
+        "subtitle": "10-year retention of every action on the vote system (never the ballot content).",
+        "empty": "No entry yet.",
+        "col_when": "When",
+        "col_action": "Action",
+        "col_entity": "Target",
+        "col_actor": "Actor",
+        "system_actor": "system (cron)",
+        "load_older": "Load older"
+      },
+      "voters": {
+        "title": "Voters management",
+        "add_title": "Add a voter",
+        "add_submit": "Add",
+        "list_title": "Voter list",
+        "col_email": "Email",
+        "col_name": "Full name",
+        "col_level": "Level",
+        "col_role": "Role",
+        "col_active": "Active",
+        "role_member": "Member",
+        "role_admin": "Admin",
+        "level_1": "Level 1 — Founder",
+        "level_2": "Level 2 — Active member",
+        "level_3": "Level 3 — Supporter",
+        "active_yes": "Active",
+        "active_no": "Inactive",
+        "deactivate_aria": "Deactivate this voter",
+        "confirm_deactivate": "Deactivate this voter? They will no longer be able to sign in or vote."
+      },
+      "create": {
+        "title": "Create a new vote",
+        "field_title": "Vote title",
+        "field_description": "Description / context (optional)",
+        "field_mode": "Mode",
+        "mode_anonymous": "Anonymous (recommended for elections)",
+        "mode_open": "Open (each ballot tied to its author)",
+        "field_scrutin": "Scrutin type",
+        "scrutin_single": "Single vote (1 choice)",
+        "scrutin_multiple": "Multiple votes (N choices)",
+        "field_max_choices": "Maximum number of choices",
+        "allow_blank": "Allow blank ballots",
+        "field_eligibility": "Eligible levels",
+        "field_quorum": "Required quorum (%)",
+        "field_majority_type": "Majority type",
+        "maj_simple": "Simple (highest count)",
+        "maj_absolute": "Absolute (> 50%)",
+        "maj_qualified_2_3": "Qualified 2/3 (> 66.66%)",
+        "maj_qualified_3_4": "Qualified 3/4 (> 75%)",
+        "maj_unanimous": "Unanimous (100%)",
+        "field_majority_base": "Majority computation base",
+        "base_expressed": "Cast ballots (excluding blank)",
+        "base_expressed_with_blank": "Cast ballots (blanks included)",
+        "base_eligible": "All eligible voters",
+        "field_open_at": "Scheduled open",
+        "open_at_helper": "If empty and 'open immediately' checked: opens on click.",
+        "field_close_at": "Close date and time",
+        "close_at_helper": "If empty: manual close by an admin.",
+        "scheduled_hint": "This vote will open automatically at the chosen date via the scheduler (runs every minute).",
+        "field_visibility": "Result visibility",
+        "vis_immediate": "Immediately after I vote",
+        "vis_on_close": "When the vote closes",
+        "vis_admin_only": "Admin only",
+        "multi_round": "Multi-round (top N goes to round 2 if no majority)",
+        "top_n": "Top N options",
+        "options_title": "Answer options (FR + EN)",
+        "option_fr": "FR label",
+        "option_en": "EN label",
+        "option_add": "Add an option",
+        "option_remove": "Remove this option",
+        "open_immediately": "Open the vote right after creation",
+        "submit": "Create vote",
+        "submitting": "Creating…"
+      },
+      "detail": {
+        "open_vote": "Open the vote",
+        "close_vote": "Close the vote",
+        "refresh": "Refresh",
+        "see_results": "See results",
+        "participation_title": "Turnout",
+        "participation_count": "{{voted}} / {{total}} voters ({{pct}}%)",
+        "col_status": "Status",
+        "has_voted": "Voted",
+        "not_voted": "Has not voted",
+        "remind": "Remind",
+        "remind_aria": "Resend a login link",
+        "opened_ok": "Vote opened. Eligible voters can now cast their ballot.",
+        "closed_ok": "Vote closed. The results PDF has been emailed to the administrator.",
+        "remind_ok": "Login link resent.",
+        "confirm_close": "Close this vote now? This action cannot be undone."
+      }
+    }
   },
   "success": {
     "title": "Thanks for your contribution!",

@@ -4,3 +4,4 @@
 export * from './types.js';
 export * from './questionnaire.js';
 export * from './validation.js';
+export * from './vote.js';

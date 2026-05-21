@@ -60,6 +60,13 @@ Critical keys:
 | `SMTP_SECURE` | `true` for 465, `false` for 587 | |
 | `MAIL_FROM_NAME` / `MAIL_FROM_ADDRESS` | `Happy Cash` / `noreply@…` | |
 | `ADMIN_EMAIL` | `admin@…` | Where every submission lands |
+| **Vote module** | | |
+| `POSTGRES_USER` / `POSTGRES_PASSWORD` / `POSTGRES_DB` | `hc_vote` / strong random / `happycash_vote` | Used by the `postgres` service inside Docker only |
+| `DATABASE_URL` | `postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}` | The API reaches Postgres over the internal Docker network; **never expose 5432 on the host** |
+| `ANONYMITY_MASTER_KEY` | 64-hex chars (32 bytes) | Generate once with `openssl rand -hex 32`. Used to AES-256-GCM-encrypt per-vote anonymity secrets at rest. Rotate only on suspected compromise |
+| `VOTE_MAGIC_LINK_TTL_HOURS` | `24` | Lifetime of the email login link |
+| `VOTE_SESSION_TTL_MINUTES` | `30` | Lifetime of an authenticated session |
+| `VOTE_BASE_URL` | `https://printmarksgraphics.cloud/happycash` | Used to build magic-link URLs in emails (no trailing slash) |
 
 ### SMTP gotchas
 
@@ -75,7 +82,9 @@ docker compose up -d --build
 docker compose ps
 ```
 
-Expected: `hc-web` and `hc-api` both `Up`. Verify they joined the NPM network:
+Expected: `hc-web`, `hc-api` and `hc-postgres` all `Up`. The Postgres container exposes no host port — only `hc-api` reaches it through the `hc` Docker network. The DB schema is applied automatically by `runMigrations()` on every API boot.
+
+Verify `hc-web` and `hc-api` joined the NPM network (`hc-postgres` stays internal):
 
 ```bash
 docker network inspect $(grep '^NPM_NETWORK=' .env | cut -d= -f2) \
@@ -109,11 +118,51 @@ NPM will validate the config and reload Nginx. If it errors out, the most likely
 
 ## 6. Smoke test from a browser
 
+### Questionnaire
+
 1. Open `https://printmarksgraphics.cloud/happycash/` → Happy Cash landing page.
 2. DevTools → Network → confirm `/happycash/assets/*` requests return 200.
 3. Walk through 2–3 steps, switch FR ↔ EN, refresh — drafts must persist.
 4. Fill the form with a real email in Q1.3 and submit.
 5. Both admin and Q1.3 email should receive a PDF.
+
+### Vote module
+
+The vote area lives under `/happycash/vote/*`. To activate it:
+
+```bash
+# 1. Bootstrap the very first admin account (idempotent — re-run to promote an existing user).
+docker compose exec api pnpm seed sipoufoknj@gmail.com "SIPOUFO Yvan" 1
+
+# 2. Open the login page and request a magic link.
+#    https://printmarksgraphics.cloud/happycash/vote/login
+```
+
+From there: admin dashboard → create voters → create a vote → open → cast a test ballot from another browser/session → close the vote → admin receives the results PDF by email.
+
+## 6bis. Backups (Postgres)
+
+The `hc_pgdata` named volume is the only stateful asset. Back it up off-host with a cron on the VPS itself (do **not** embed `pg_dump` in the API container):
+
+```bash
+# As the host user, edit crontab:
+crontab -e
+
+# Add a daily 02:00 dump into ~/backups (rotated weekly via `find -mtime`):
+0 2 * * * mkdir -p ~/backups && docker exec hc-postgres \
+  sh -c 'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" | gzip' \
+  > ~/backups/hc-vote-$(date +\%F).sql.gz && \
+  find ~/backups -name 'hc-vote-*.sql.gz' -mtime +30 -delete
+```
+
+Then `rsync ~/backups` off-VPS regularly (Hostinger's snapshot, Backblaze, etc.). **Restore drill** (test in a staging compose):
+
+```bash
+gunzip -c ~/backups/hc-vote-2026-05-21.sql.gz | docker exec -i hc-postgres \
+  psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"
+```
+
+> ⚠️ A backup taken **during** an open anonymous vote contains the per-vote AES-encrypted secret. The dissociation guarantee still holds (no FK links `participations` and `ballots`), but operationally, treat such backups with the same care as the `.env` file.
 
 ## 7. Update & redeploy
 
@@ -126,12 +175,11 @@ docker image prune -f
 
 No NPM change needed — the Proxy Host config keeps pointing to `hc-web` / `hc-api` by name.
 
-## 8. Backups
+## 8. Off-host secrets to keep safe
 
-There is no database. Worth keeping safe off-host:
-
-- `~/positioning-questionnaire/.env`
-- A screenshot or export of the NPM Proxy Host's Advanced config (in case you need to recreate the entry).
+- `~/positioning-questionnaire/.env` — contains SMTP creds, `POSTGRES_PASSWORD`, **and `ANONYMITY_MASTER_KEY`** (losing the master key makes existing anonymous votes' per-vote secrets unrecoverable; in MVP they are not used post-close so impact is bounded but rotation should be deliberate).
+- A screenshot or export of the NPM Proxy Host's Advanced config.
+- `~/backups/hc-vote-*.sql.gz` mirrored off-VPS (see §6bis).
 
 ## 9. Troubleshooting
 
@@ -143,6 +191,10 @@ There is no database. Worth keeping safe off-host:
 | `CORS error` in browser | `CORS_ORIGINS` does not include `https://printmarksgraphics.cloud` | Edit `.env`, `docker compose up -d` |
 | Email never arrives | SMTP creds rejected | `docker compose logs api` — look for `EAUTH` / `ETIMEDOUT` |
 | NPM shows "Internal Error" after Save | Syntax error in Advanced config | Check the NPM container logs: `docker logs <npm-container>` |
+| API boot loops with `Invalid environment configuration` | A required `.env` var missing/malformed | Check `docker compose logs api` — Zod reports the exact field. `ANONYMITY_MASTER_KEY` must be 64 hex chars |
+| `hc-api` exits with `connect ECONNREFUSED postgres:5432` | Postgres not ready or wrong creds | `docker compose logs postgres`; verify `POSTGRES_*` keys match `DATABASE_URL` |
+| Magic-link emails not received | SMTP throttled or sent to spam | Same triage as the questionnaire email; try Brevo (see §3 SMTP gotchas) |
+| Scheduled votes don't auto-open/auto-close | Container restarted; cron tick missed by seconds | Wait one minute — the next tick catches up. `docker compose logs api` should show `[hc] Scheduler started` |
 
 ## 10. Decommission
 

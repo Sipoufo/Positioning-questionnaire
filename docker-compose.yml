@@ -3,8 +3,10 @@
 # to them by container name. Nothing is published on host ports — all traffic
 # arrives via NPM (which terminates HTTPS for printmarksgraphics.cloud).
 #
-#   - web : built React SPA served by Nginx on container port 80
-#   - api : Express backend on container port 3001
+#   - web      : built React SPA served by Nginx on container port 80
+#   - api      : Express backend on container port 3001
+#   - postgres : Vote module database, internal Docker network only — never
+#                exposed to the host, so another Postgres can keep port 5432.
 #
 # Set NPM_NETWORK in .env to the actual Nginx Proxy Manager network name
 # (find it with: docker network ls).
@@ -36,7 +38,27 @@ services:
       - .env
     expose:
       - "3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
     networks: [hc, npm]
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: hc-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - hc_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [hc]
 
 networks:
   hc:
@@ -44,3 +66,6 @@ networks:
   npm:
     external: true
     name: ${NPM_NETWORK:-nginx-proxy-manager_default}
+
+volumes:
+  hc_pgdata:
