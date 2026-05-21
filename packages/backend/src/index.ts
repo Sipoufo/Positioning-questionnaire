@@ -21,6 +21,11 @@ import { startScheduler } from './services/scheduler.js';
 
 const app = express();
 
+// Behind Nginx Proxy Manager (and the Docker bridge). Trust the single hop
+// in front of us so req.ip reflects the real client IP and express-rate-limit
+// can key on it correctly (avoids ERR_ERL_UNEXPECTED_X_FORWARDED_FOR).
+app.set('trust proxy', 1);
+
 app.use(helmet());
 app.use(express.json({ limit: '256kb' }));
 app.use(
